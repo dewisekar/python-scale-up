@@ -6,19 +6,22 @@ import statusFileEnum as StatusFile
 from importShopee import readShopeeRow
 import time
 
-pathFolder = 'D:/APPLICATION/docs/'
-pathFolderDone = 'D:/APPLICATION/docs/Done/'
+#pathFolder = 'D:/APPLICATION/docs/'
+pathFolder = '/home/projects/docs/'
+pathFolderDone = '/home/projects/docs/Done/'
+
+server = 'localhost'
+database = 'WEB_CONFIG'
+username = 'sa'
+password = 'P@ssw0rd'
+#pathFolderDone = 'D:/APPLICATION/docs/Done/'
 #extension = '.xlsx'
 #df = pd.read_excel (r'C:\Users\vadio\Documents\GitHub\Repo-Dio\tesexcel.xlsx')
 
 def main():
     
     while True:
-
-        with pyodbc.connect('Driver={SQL Server};'
-                      'Server=localhost;'
-                      'Database=WEB_CONFIG;'
-                      'Trusted_Connection=yes;') as conn:
+        with pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn:
 
             fileId = 0 
             try:
@@ -31,6 +34,7 @@ def main():
 
                 rows = cursor.fetchall()
                 loop = 0
+
                 for row in rows:
                     loop += 1
                     fileId = row[0]
@@ -70,7 +74,7 @@ def main():
                 #updateString = "EXEC [dbo].[SP_UpdateStatusDailyFileTrx] @ID=" +str(fileId) + ",@STATUSFILE='" + str(StatusFile.UNDEFINED) +"',@ERRMSG='" +errMsg.replace("'","" )+"';"
                 #print(updateString)
                 #cursor.execute(updateString)
-        time.sleep(30)
+        time.sleep(60)
 
 
 if __name__== "__main__":
