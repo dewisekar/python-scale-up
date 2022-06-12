@@ -5,10 +5,24 @@ from os import path
 import statusFileEnum as StatusFile
 from importShopee import readShopeeRow
 import time
+import platform 
+
 
 #pathFolder = 'D:/APPLICATION/docs/'
-pathFolder = '/home/projects/docs/'
-pathFolderDone = '/home/projects/docs/Done/'
+pathFolder = '' #'/home/projects/docs/'
+pathFolderDone = '' #'/home/projects/docs/Done/'
+
+
+def initialFunction():
+    if(platform.system() == 'Linux'):
+        pathFolder = '/home/projects/docs/'
+        pathFolderDone = '/home/projects/docs/Done/'
+    else :
+        pathFolder = 'D:/APPLICATION/docs/'
+        pathFolderDone = 'D:/APPLICATION/docs/Done/'
+    
+    print("Initialization, pathFolder: ",pathFolder,"pathFolderDone : ", pathFolderDone)
+
 
 server = 'localhost'
 database = 'WEB_CONFIG'
@@ -19,7 +33,7 @@ password = 'P@ssw0rd'
 #df = pd.read_excel (r'C:\Users\vadio\Documents\GitHub\Repo-Dio\tesexcel.xlsx')
 
 def main():
-    
+    initialFunction()
     while True:
         with pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn:
 
