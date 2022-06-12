@@ -11,17 +11,22 @@ import platform
 #pathFolder = 'D:/APPLICATION/docs/'
 pathFolder = '' #'/home/projects/docs/'
 pathFolderDone = '' #'/home/projects/docs/Done/'
-
+driver = ''
 
 def initialFunction():
+    global pathFolder
+    global pathFolderDone
+    global driver
     if(platform.system() == 'Linux'):
         pathFolder = '/home/projects/docs/'
         pathFolderDone = '/home/projects/docs/Done/'
+        driver = 'ODBC Driver 18 for SQL Server'
     else :
         pathFolder = 'D:/APPLICATION/docs/'
         pathFolderDone = 'D:/APPLICATION/docs/Done/'
+        driver = 'SQL Server'
     
-    print("Initialization, pathFolder: ",pathFolder,"pathFolderDone : ", pathFolderDone)
+    print("Initialization, pathFolder: ",pathFolder,"pathFolderDone : ", pathFolderDone,"driver:",driver)
 
 
 server = 'localhost'
@@ -35,7 +40,7 @@ password = 'P@ssw0rd'
 def main():
     initialFunction()
     while True:
-        with pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn:
+        with pyodbc.connect('DRIVER={'+driver+'};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn:
 
             fileId = 0 
             try:
