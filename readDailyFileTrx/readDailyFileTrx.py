@@ -38,6 +38,8 @@ password = 'P@ssw0rd'
 #df = pd.read_excel (r'C:\Users\vadio\Documents\GitHub\Repo-Dio\tesexcel.xlsx')
 
 def main():
+    global pathFolder
+    global pathFolderDone
     initialFunction()
     while True:
         with pyodbc.connect('DRIVER={'+driver+'};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn:
