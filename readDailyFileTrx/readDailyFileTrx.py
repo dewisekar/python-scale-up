@@ -56,35 +56,40 @@ def main():
                 rows = cursor.fetchall()
                 loop = 0
 
-                for row in rows:
+                for row in rows: #looping in all file will be imported
                     loop += 1
-                    fileId = row[0]
-                    fileName = row[1]
-                    filePath = pathFolder + fileName #+ extension
-                    channel = row[2]
-                    isMarketPlace = row[3]
-                    print ("File '"+ filePath + "' is exists:"+str(path.exists(filePath)))
-                    if path.exists(filePath):
-                        # if (channel == "Shopee") :
-                        #     df = pd.read_excel (filePath,converters={'Perkiraan Ongkos Kirim':str})
-                        # else :
-                        #     df = pd.read_excel (filePath)
-                        # executeJournalJualString = ""
+                    try:
+                        fileId = row[0]
+                        fileName = row[1]
+                        filePath = pathFolder + fileName #+ extension
+                        channel = row[2]
+                        isMarketPlace = row[3]
+                        print ("File '"+ filePath + "' is exists:"+str(path.exists(filePath)))
+                        if path.exists(filePath):
+                            # if (channel == "Shopee") :
+                            #     df = pd.read_excel (filePath,converters={'Perkiraan Ongkos Kirim':str})
+                            # else :
+                            #     df = pd.read_excel (filePath)
+                            # executeJournalJualString = ""
 
-                        #print(df)
-                        df = pd.read_excel (filePath,converters={'HP. PENERIMA (DEPAN 62)':str})
-                        for index, row in df.iterrows():
-                            if(str(row['INVOICE']) != 'nan' and  str(row['INVOICE']) != 'NaT'):
-                                executeJournalJualString = readShopeeRow(row,fileName)
-                                print(executeJournalJualString)
-                        
-                                cursor.execute(executeJournalJualString)
-                        
-                        updateString = "EXEC [dbo].[SP_UpdateStatusDailyFileTrx] @ID=" +str(fileId) + ",@STATUSFILE='" + str(StatusFile.SUCCESS) +"',@ERRMSG='SUCCESS';"
-                        cursor.execute(updateString)
-                    else:
-                        updateString = "EXEC [dbo].[SP_UpdateStatusDailyFileTrx] @ID=" +str(fileId) + ",@STATUSFILE='" + str(StatusFile.NOT_FOUND)+"',@ERRMSG='NOT FOUND';"
-                        #cursor.execute(updateString)
+                            #print(df)
+                            df = pd.read_excel (filePath,converters={'HP. PENERIMA (DEPAN 62)':str})
+                            for index, row in df.iterrows():
+                                if(str(row['INVOICE']) != 'nan' and  str(row['INVOICE']) != 'NaT'):
+                                    executeJournalJualString = readShopeeRow(row,fileName)
+                                    print(executeJournalJualString)
+                            
+                                    cursor.execute(executeJournalJualString)
+                            
+                            updateString = "EXEC [dbo].[SP_UpdateStatusDailyFileTrx] @ID=" +str(fileId) + ",@STATUSFILE='" + str(StatusFile.SUCCESS) +"',@ERRMSG='SUCCESS';"
+                            cursor.execute(updateString)
+                        else:
+                            updateString = "EXEC [dbo].[SP_UpdateStatusDailyFileTrx] @ID=" +str(fileId) + ",@STATUSFILE='" + str(StatusFile.NOT_FOUND)+"',@ERRMSG='NOT FOUND';"
+                            #cursor.execute(updateString)
+                    except Exception as e:
+                        errMsg = "An exception occurred :" + str(e)
+                        print(errMsg) 
+                        updateString = "EXEC [dbo].[SP_UpdateStatusDailyFileTrx] @ID=" +str(fileId) + ",@STATUSFILE='" + str(StatusFile.UNDEFINED)+"',@ERRMSG='{}';".format(errMsg)
                     if loop >=1 :
                         break
                 #print(i,i[1])
