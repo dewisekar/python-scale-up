@@ -73,14 +73,23 @@ def main():
                             # executeJournalJualString = ""
 
                             #print(df)
+                            rownum = 0
                             df = pd.read_excel (filePath,converters={'HP. PENERIMA (DEPAN 62)':str})
                             for index, row in df.iterrows():
                                 if(str(row['INVOICE']) != 'nan' and  str(row['INVOICE']) != 'NaT'):
-                                    executeJournalJualString = readShopeeRow(row,fileName)
-                                    print(executeJournalJualString)
+                                    rownum+= 1
+                                    try:
+                                        executeJournalJualString = readShopeeRow(row,fileName)
+                                        with pyodbc.connect('DRIVER={'+driver+'};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn2:
+                                            cursor2 = conn2.cursor()
+                                            print(executeJournalJualString)
                             
-                                    cursor.execute(executeJournalJualString)
-                            
+                                            cursor2.execute(executeJournalJualString)
+                                        
+                                        #time.sleep(1)
+                                    except Exception as ex :
+                                        print("err :",ex)
+                            print("total rows : ",rownum)
                             updateString = "EXEC [dbo].[SP_UpdateStatusDailyFileTrx] @ID=" +str(fileId) + ",@STATUSFILE='" + str(StatusFile.SUCCESS) +"',@ERRMSG='SUCCESS';"
                             cursor.execute(updateString)
                         else:
