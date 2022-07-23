@@ -17,7 +17,9 @@ def initialFunction():
     #print("driver:",driver)
 
 def fetchRowsFromDatabase(strSql):
-    initialFunction()
+    global driver
+    if driver != '' :
+        initialFunction()
     with pyodbc.connect('DRIVER={'+driver+'};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn:
         cursor = conn.cursor()
         cursor.execute(strSql)
@@ -25,10 +27,14 @@ def fetchRowsFromDatabase(strSql):
         return rows
 
 def executeSqlQuery(strSql):
-    initialFunction()
+    global driver
+    if driver != '' :
+        initialFunction()
+    
     with pyodbc.connect('DRIVER={'+driver+'};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password+';TrustServerCertificate=yes;') as conn:
         cursor = conn.cursor()
-        return cursor.execute(strSql)
+        cursor.execute(strSql)
+        cursor.commit()
         #rows = cursor.fetchall()
         #return rows
 

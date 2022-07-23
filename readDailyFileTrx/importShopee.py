@@ -1,4 +1,7 @@
 from datetime import datetime
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'logger'))
+import myLogger
 
 importerShopeeVarchar = [ ['TGL ORDER','TGL_ORDER'],
 ['ORDER VIA','ORDER_VIA'],
@@ -9,25 +12,25 @@ importerShopeeVarchar = [ ['TGL ORDER','TGL_ORDER'],
 ['ALAMAT','ALAMAT'],
 ['KOTA','KOTA'],
 ['PROVINSI','PROVINSI'],
-['PULAU','PULAU'],
-['STATUS TRX','STATUS_TRX'],
-['Nama Produk 1','Nama_Produk_1'],
-['Nama Produk 2','Nama_Produk_2'],
-['Nama Produk 3','Nama_Produk_3'],
-['Nama Produk 4','Nama_Produk_4'],
-['Nama Produk 5','Nama_Produk_5'],
+#['PULAU','PULAU'],
+#['STATUS TRX','STATUS_TRX'],
+['Nama Produk','Nama_Produk'],
+#['Nama Produk 2','Nama_Produk_2'],
+#['Nama Produk 3','Nama_Produk_3'],
+#['Nama Produk 4','Nama_Produk_4'],
+#['Nama Produk 5','Nama_Produk_5'],
 ['KURIR','KURIR'],
 ['INVOICE','INVOICE'],
 ['RESI / KODE BOOKING','RESI']]
 
 importerShopeeFloat = [ ['DISKON DARI PENJUAL','DISKON_DARI_PENJUAL'],
 ['DISKON DARI MP','DISKON_DARI_MP'],
-['DITERIMA','DITERIMA'],
-['Jml Produk 1','Jml_Produk_1'],
-['Jml Produk 2','Jml_Produk_2'],
-['Jml Produk 3','Jml_Produk_3'],
-['Jml Produk 4','Jml_Produk_4'],
-['Jml Produk 5','Jml_Produk_5'],
+#['DITERIMA','DITERIMA'],
+['Jml Produk','Jml_Produk'],
+#['Jml Produk 2','Jml_Produk_2'],
+#['Jml Produk 3','Jml_Produk_3'],
+#['Jml Produk 4','Jml_Produk_4'],
+#['Jml Produk 5','Jml_Produk_5'],
 ['ONGKIR DIBAYAR OLEH CUSTOMER','ONGKIR_DIBAYAR_OLEH_CUSTOMER'],
 ['DISC ONGKIR SELLER','DISC_ONGKIR_SELLER'],
 ['DISC ONGKIR PLATFORM','DISC_ONGKIR_PLATFORM'],
@@ -82,7 +85,8 @@ def readShopeeRow(row,filename):
         strSql = strSql[:-1]
     #print("Sql Exec:", sql)
     except Exception as e:
-        print("Create execute sql Journal Error gagal, No. Invoice : ",strNomorInovice, ",filename:", filename,",exc:", e)
+        myLogger.logging_info("readFileTrx","Create execute sql Journal Error gagal, No. Invoice : ",strNomorInovice, ",filename:", filename,",exc:", e)
+        #print("Create execute sql Journal Error gagal, No. Invoice : ",strNomorInovice, ",filename:", filename,",exc:", e)
     
 
     return strSql
