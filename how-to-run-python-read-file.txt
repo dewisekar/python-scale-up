@@ -1,0 +1,5 @@
+nohup python3 -u readDailyFileTrx/readDailyFileTrx.py run  > logs/main.log 2>&1 & echo $! > python.pid
+
+nohup python3 -u scrapResi/scrapResi.py run  > logs/scrapResi.log 2>&1 & echo $! > pythonScrapResi.pid
+
+nohup python3 -u readGenerateFileQueue/readGenerateFileQueue.py run  > logs/readGenerateFileQueue.log 2>&1 & echo $! > pythonReadFileQueue.pid
