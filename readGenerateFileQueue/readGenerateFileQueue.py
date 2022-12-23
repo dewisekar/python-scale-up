@@ -243,7 +243,10 @@ def process_data_queue(data):
         replacement = create_replacement(detailData)
         myLogger.logging_info("readGenerateFileQueue"," replacement:",replacement)
         
-        filename_result,status = replaceWordsInDocx('template.docx',replacement)
+        if detailData['dpPercentage'] == 100:
+            filename_result,status = replaceWordsInDocx('template_full.docx',replacement)
+        else :
+            filename_result,status = replaceWordsInDocx('template.docx',replacement)
         myLogger.logging_info("readGenerateFileQueue"," filename_result:",filename_result)
         myLogger.logging_info("readGenerateFileQueue"," status:",status)
         if status:
