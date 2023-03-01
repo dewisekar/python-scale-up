@@ -54,6 +54,10 @@ def getTiktokVideoStats():
     username = ''
     video_id = ''
     try:
+        print("url lama", url)
+        if "@" not in url:
+            url  = TiktokViewStats.livecounts.getIdFromLongUrl(url)
+        print("url baru", url)
         username, video_id = re.findall(r'(@[a-zA-z0-9]*)\/.*\/([\d]*)?',url)[0]
     except Exception as e:
         myLogger.logging_error('flask','got exc when extract video id:',e)
@@ -92,6 +96,10 @@ def getTiktokVideoWithUserStats():
     username = ''
     video_id = ''
     try:
+        print("url lama", url)
+        if "@" not in url:
+            url  = TiktokViewStats.livecounts.getIdFromLongUrl(url)
+        print("url baru", url)
         username, video_id = re.findall(r'(@[a-zA-z0-9]*)\/.*\/([\d]*)?',url)[0]
     except Exception as e:
         myLogger.logging_error('flask','got exc when extract video id:',e)

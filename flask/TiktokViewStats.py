@@ -84,6 +84,17 @@ class livecounts:
             findall(r"(\d{18,19})", video_link)[0] if len(findall(r"(\d{18,19})", video_link)) == 1
             else findall(r"(\d{18,19})", head(video_link, allow_redirects=True, timeout=5).url)[0]
         )
+    
+    @staticmethod
+    def getIdFromLongUrl(url: str) -> dict:       
+        headers = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+        }
+        # proxies = livecounts.__getProxies()
+        # print(proxies)
+        req = get(url, headers=headers)
+        
+        return req.url
 
 
 def get_proxies():
