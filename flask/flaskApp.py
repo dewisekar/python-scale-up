@@ -58,7 +58,11 @@ def getTiktokVideoStats():
         if "@" not in url:
             url  = TiktokViewStats.livecounts.getIdFromLongUrl(url)
         print("url baru", url)
-        username, video_id = re.findall(r'(@[a-zA-z0-9]*)\/.*\/([\d]*)?',url)[0]
+        # username, video_id = re.findall(r'(@[a-zA-z0-9]*)\/.*\/([\d]*)?',url)[0]
+        regexResult = url.split("/")
+        username = regexResult[3]
+        uncutId = regexResult[5].split("?")
+        video_id = uncutId[0]
     except Exception as e:
         myLogger.logging_error('flask','got exc when extract video id:',e)
         resp['message'] = 'failed to extract video id'
@@ -67,6 +71,7 @@ def getTiktokVideoStats():
     if username != '' and video_id != '':
         try:
             stats = TiktokViewStats.livecounts.video_info(video_id)
+            print("ini stats", stats)
             if stats is not None:
                 resp['status'] = True
                 resp['message'] = 'success'
@@ -75,6 +80,7 @@ def getTiktokVideoStats():
                 resp['message'] = 'empty data'
                 resp['status'] = '202'
         except Exception as e:
+            print("error",e)
             myLogger.logging_error('flask','got exc when get video stats:',e)
             resp['message'] = 'failed to get video stats'
             resp['status'] = '203'
@@ -100,7 +106,11 @@ def getTiktokVideoWithUserStats():
         if "@" not in url:
             url  = TiktokViewStats.livecounts.getIdFromLongUrl(url)
         print("url baru", url)
-        username, video_id = re.findall(r'(@[a-zA-z0-9]*)\/.*\/([\d]*)?',url)[0]
+        regexResult = url.split("/")
+        username = regexResult[3]
+        uncutId = regexResult[5].split("?")
+        video_id = uncutId[0]
+        # username, video_id = re.findall(r'(@[a-zA-z0-9]*)\/.*\/([\d]*)?',url)[0]
     except Exception as e:
         myLogger.logging_error('flask','got exc when extract video id:',e)
         resp['message'] = 'failed to extract video id'
@@ -110,10 +120,12 @@ def getTiktokVideoWithUserStats():
         try:
             myLogger.logging_info('flask','video_stats')
             video_stats = TiktokViewStats.livecounts.video_info(video_id)
+            print("ini video", video_stats)
             myLogger.logging_info('flask',video_stats)
 
             # myLogger.logging_info('flask','video_data')
             video_data = TiktokViewStats.livecounts.video_data(video_id)
+            print("ini ", video_data)
             myLogger.logging_info('flask',video_data)
 
             user_stats = {}
@@ -121,15 +133,18 @@ def getTiktokVideoWithUserStats():
                 user_id = video_data['author']['userId']
                 if user_id is not None and user_id != '' : 
                     user_stats = TiktokViewStats.livecounts.user_stats(user_id)
+                    print("ini user stats", user_stats)
             
             if len(video_stats) > 0 and len(user_stats)>0:
                 resp['status'] = True
                 resp['message'] = 'success'
                 resp['data'] = {'video':video_stats,'user':user_stats,'author':video_data['author']}
+                print("ini resp", resp)
             else :
                 resp['message'] = 'empty data'
                 resp['status'] = '202'
         except Exception as e:
+            print("ex",e)
             myLogger.logging_error('flask','got exc when get video stats:',e)
             resp['message'] = 'failed to get video stats'
             resp['status'] = '203'
