@@ -7,6 +7,7 @@ from lxml.html import fromstring
 import requests
 from itertools import cycle
 import traceback
+import requests
 
 class livecounts:
     @staticmethod
@@ -95,9 +96,7 @@ class livecounts:
         }
         # proxies = livecounts.__getProxies()
         # print(proxies)
-        req = get(f'https://tiktok.com', headers=headers)
-        print("ini", req)
-        print("why", req.url)
+        req = requests.request("GET", url, headers=headers, verify=False)
         
         return req.url
 
