@@ -94,6 +94,7 @@ class livecounts:
         # proxies = livecounts.__getProxies()
         # print(proxies)
         req = get(url, headers=headers)
+        print(req)
         
         return req.url
 
