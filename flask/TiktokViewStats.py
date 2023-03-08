@@ -95,8 +95,9 @@ class livecounts:
         }
         # proxies = livecounts.__getProxies()
         # print(proxies)
-        req = get(f'https://vt.tiktok.com/ZS8PdCkfA/', headers=headers)
-        print(req)
+        req = get(f'https://tiktok.livecounts.io/user/stats/6790223190637478914', headers=headers)
+        print("ini", req)
+        print("why", req.url)
         
         return req.url
 
