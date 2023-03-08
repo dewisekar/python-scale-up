@@ -96,9 +96,11 @@ class livecounts:
         }
         # proxies = livecounts.__getProxies()
         # print(proxies)
-        req = requests.request("GET", url, headers=headers, verify=False, timeout=10)
-        
-        return req.url
+        req = get(url, headers=headers, allow_redirects=False)
+        print("status",req.status_code)  # 302
+        print("url header", req.headers['Location'])
+
+        return req.headers['Location']
 
 
 def get_proxies():
