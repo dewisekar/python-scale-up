@@ -104,9 +104,9 @@ def getCPM():
     listVideo = []
 
     try:
-        respSearch = TiktokViewStats.livecounts.user_search(username)
-        myLogger.logging_info('flask','respSearch:',respSearch)
-        userStats = respSearch['userData'][0]['stats']
+        # respSearch = TiktokViewStats.livecounts.user_search(username)
+        # myLogger.logging_info('flask','respSearch:',respSearch)
+        # userStats = respSearch['userData'][0]['stats']
         listVideo = TiktokViewStats.getListVideoFromTiktokUser(username)
     except Exception as e:
         myLogger.logging_error('flask','got exc when get list video :',e)
@@ -148,7 +148,7 @@ def getCPM():
             resp['avgCpm'] = cost*totalCount / (totalViews*1000)
         resp['username'] = username
         resp['totalViews'] = totalViews
-        resp['followers'] = userStats['followers']
+        # resp['followers'] = userStats['followers']
         resp['status'] = True
             
     response = jsonify(resp)
