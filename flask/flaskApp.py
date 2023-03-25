@@ -8,6 +8,7 @@ import myLogger
 import re
 from flask_httpauth import HTTPBasicAuth
 from flask_cors import CORS
+import time 
 
 # url_stats = 'https://tiktok.livecounts.io/user/stats/'
 # def getPostStatTiktok(link):
@@ -85,6 +86,98 @@ def getTiktokVideoStats():
             resp['message'] = 'failed to get video stats'
             resp['status'] = '203'
 
+    response = jsonify(resp)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Content-Type', 'application/json')
+    # response.headers.add('Access-Control-Allow-Headers', 'X-Requested-With')
+    return response
+
+@app.route('/getCPM/', methods=['POST'])
+# @auth.login_required
+def getCPM():
+    resp = {'status':False}
+    body = request.json
+    myLogger.logging_info('flask','/getCPM/','body:',body)
+    username = body['username']
+    cost = body['cost']
+
+    listVideo = []
+
+    try:
+        listVideo = TiktokViewStats.getListVideoFromTiktokUser(username)
+    except Exception as e:
+        myLogger.logging_error('flask','got exc when get list video :',e)
+        
+    
+    if len(listVideo) == 0 :
+        resp['message'] = 'failed to get list video of users'
+        resp['status'] = '201'
+    elif cost <=0:
+        resp['message'] = 'cost must be a positive amount'
+        resp['status'] = '202'
+    else:
+        #print(listVideo)
+        videoStats = []
+        totalCount = 0
+        totalViews = 0
+        for videoId in listVideo:
+            try:
+                videoStatsAndData = TiktokViewStats.getVideoDataAndStats(videoId,username)
+                # video_stats = TiktokViewStats.livecounts.video_info(videoId)
+                # video_data = TiktokViewStats.livecounts.video_data(videoId)
+                if videoStatsAndData['stats']['playCount'] > 0:
+                    cpm = cost/videoStatsAndData['stats']['playCount']
+                else:
+                    cpm = 0
+                videoStatsAndData['cpm'] = cpm
+                #createTime = TiktokViewStats.getCreatedTime(videoId,username)
+                #videoStats.append({'id':videoId,'stats':video_stats,"title":video_data["title"],"cpm":cpm,"createTime":createTime,"cover":video_data["cover"]})
+                videoStats.append(videoStatsAndData)
+                totalCount += 1
+                totalViews += videoStatsAndData['stats']['playCount']
+                #time.sleep(0.1)
+            except Exception as e:
+                myLogger.logging_error('flask','got exc when get video stats:',e)
+
+        resp['videoStats'] = videoStats
+        if totalViews > 0 and totalCount > 0:
+            resp['avgView'] = totalViews/totalCount
+            resp['avgCpm'] = cost / (totalViews/totalCount)
+        resp['username'] = username
+        resp['status'] = True
+            
+    response = jsonify(resp)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Content-Type', 'application/json')
+    return response
+
+@app.route('/getUserInfo/', methods=['GET','POST'])
+# @auth.login_required
+def getUserInfo():
+    resp = {'status':False}
+    body = request.json
+    myLogger.logging_info('flask','/getUserInfo/','body:',body)
+    username = body['username']
+
+    if username == '':
+        resp['message'] = 'username cannot be empty'
+        resp['status'] = '201'
+    else:
+        try:
+            respSearch = TiktokViewStats.livecounts.user_search(username)
+            myLogger.logging_info('flask','respSearch:',respSearch)
+            users = respSearch['userData']
+            found = False
+            for user in users:
+                if user['id'] == username:
+                    found = True
+                    resp['userData'] = user
+            if not found :
+                resp['message'] = 'username not found'
+                resp['status'] = '202'
+        except Exception as e:
+            myLogger.logging_error('flask','got exc when get user info:',e)
+    
     response = jsonify(resp)
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Content-Type', 'application/json')

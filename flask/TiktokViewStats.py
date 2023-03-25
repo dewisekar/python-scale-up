@@ -8,6 +8,10 @@ import requests
 from itertools import cycle
 import traceback
 import requests
+from lxml import etree
+from io import StringIO
+import json
+from datetime import datetime
 
 class livecounts:
     @staticmethod
@@ -45,6 +49,25 @@ class livecounts:
         #print(proxies)
         #req = get(f'https://tiktok.livecounts.io/video/stats/{video_id}', headers=headers, proxies=proxies)
         req = get(f'https://tiktok.livecounts.io/video/stats/{video_id}', headers=headers)
+        return req.json()
+
+    @staticmethod
+    def user_search(username: (int or str)) -> dict:
+        timestamp = int(time() * 1000)
+        
+        headers = {
+            # **livecounts.__signature(timestamp),
+            'authority' : 'tiktok.livecounts.io',
+            'origin'    : 'https://livecounts.io',
+            'host'      : 'tiktok.livecounts.io',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+        }
+        proxies = livecounts.__getProxies()
+        #print(proxies)
+        #req = get(f'https://tiktok.livecounts.io/video/stats/{video_id}', headers=headers, proxies=proxies)
+        #print("username:",username)
+        req = get(f'https://tiktok.livecounts.io/user/search/{username}', headers=headers,proxies=proxies)
+        print("req.json():",req.json())
         return req.json()
 
     @staticmethod
@@ -114,10 +137,55 @@ def get_proxies():
             proxies.add(proxy)
     return proxies
 
+def getListVideoFromTiktokUser(username):
+    listVideo = []
+    if username[0:1] != '@':
+        username = '@' + username
+    try :
+        parser = etree.HTMLParser()
+        headers = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+        }
+        page = requests.get(f'https://www.tiktok.com/{username}',headers=headers)
+        html = page.content.decode("utf-8")
+        tree = etree.parse(StringIO(html), parser=parser)
+        refs = tree.xpath("//a")
+        links = [link.get('href', '') for link in refs]
+        listVideo = [l.split("/")[5] for l in links if '/video/' in l][:10]
+    except Exception as e:
+        print('got exception getListVideoFromTiktokUser, e:',e)
+    return listVideo
+
+def getVideoDataAndStats(videoId,username):
+    resp = {}
+    if username[0:1] != '@':
+        username = '@' + username
+    try:
+        parser = etree.HTMLParser()
+        headers = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+        }
+        page = requests.get(f'https://www.tiktok.com/{username}/video/{videoId}',headers=headers)
+        html = page.content.decode("utf-8")
+        tree = etree.parse(StringIO(html), parser=parser)
+        id_path = "SIGI_STATE"
+        results = tree.xpath("//script[@id = '%s']" % id_path)
+        videoData = json.loads(results[0].text)
+        unixTimeStamps = videoData['ItemModule'][videoId]['createTime']
+        ts = int(unixTimeStamps)
+        createTime = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        data = {'cover:': videoData['ItemModule'][videoId]['video']['cover'],"title": videoData['SEOState']['metaParams']['title'],"createTime":createTime}
+        stats = videoData['ItemModule'][videoId]['stats']
+        resp = {'id':videoId,'data':data,'stats':stats}
+    except Exception as e:
+        print('got exception getCreatedTime, e:',e)
+    return resp
+
 if __name__ == '__main__':
     try:
         # print(livecounts.video_info(livecounts.link_to_id('https://www.tiktok.com/@anggianisl/video/7149484690917854491?_r=1&_t=8W8orM09DZR&is_from_webapp=v1&item_id=7149484690917854491')))
-        print(livecounts.video_info('7149484690917854491'))
+        #print(livecounts.video_info('7149484690917854491'))
+        print(getListVideoFromTiktokUser('anggianisl'))
         # proxy = ''
         # while proxy == '':
         #     proxies = get_proxies()
