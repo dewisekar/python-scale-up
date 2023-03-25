@@ -66,7 +66,7 @@ class livecounts:
         #print(proxies)
         #req = get(f'https://tiktok.livecounts.io/video/stats/{video_id}', headers=headers, proxies=proxies)
         #print("username:",username)
-        req = get(f'https://tiktok.livecounts.io/user/search/{username}', headers=headers)
+        req = get(f'https://tiktok.livecounts.io/user/search/@gin3344', headers=headers)
         print("req.json():",req.json())
         return req.json()
 
