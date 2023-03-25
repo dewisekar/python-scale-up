@@ -9,6 +9,7 @@ import re
 from flask_httpauth import HTTPBasicAuth
 from flask_cors import CORS
 import time 
+from scrapTiktok import scrapTiktok
 
 # url_stats = 'https://tiktok.livecounts.io/user/stats/'
 # def getPostStatTiktok(link):
@@ -71,7 +72,8 @@ def getTiktokVideoStats():
 
     if username != '' and video_id != '':
         try:
-            stats = TiktokViewStats.livecounts.video_info(video_id)
+            #stats = TiktokViewStats.livecounts.video_info(video_id)
+            stats = scrapTiktok.getVideoStats(video_id,username)
             print("ini stats", stats)
             if stats is not None:
                 resp['status'] = True
@@ -104,7 +106,7 @@ def getCPM():
     listVideo = []
 
     try:
-        listVideo = TiktokViewStats.getListVideoFromTiktokUser(username)
+        listVideo = scrapTiktok.getListVideoFromTiktokUser(username)
     except Exception as e:
         myLogger.logging_error('flask','got exc when get list video :',e)
         
@@ -122,7 +124,7 @@ def getCPM():
         totalViews = 0
         for videoId in listVideo:
             try:
-                videoStatsAndData = TiktokViewStats.getVideoDataAndStats(videoId,username)
+                videoStatsAndData = scrapTiktok.getVideoDataAndStats(videoId,username)
                 # video_stats = TiktokViewStats.livecounts.video_info(videoId)
                 # video_data = TiktokViewStats.livecounts.video_data(videoId)
                 if videoStatsAndData['stats']['playCount'] > 0:
@@ -165,16 +167,13 @@ def getUserInfo():
         resp['status'] = '201'
     else:
         try:
-            respSearch = TiktokViewStats.livecounts.user_search(username)
-            myLogger.logging_info('flask','respSearch:',respSearch)
-            users = respSearch['userData']
-            found = False
-            for user in users:
-                if user['id'] == username:
-                    found = True
-                    resp['userData'] = user
-            if not found :
-                resp['message'] = 'username not found'
+            userInfo = scrapTiktok.getUserInfo(username)
+            if bool(userInfo):
+                resp['message'] = 'success'
+                resp['status'] = True
+                resp['data'] = userInfo
+            else :
+                resp['message'] = 'empty data'
                 resp['status'] = '202'
         except Exception as e:
             myLogger.logging_error('flask','got exc when get user info:',e)
@@ -214,33 +213,51 @@ def getTiktokVideoWithUserStats():
         resp['status'] = '201'
 
     if username != '' and video_id != '':
+        userInfo = {}
+        userStats = {}
+        videoStats = {}
         try:
             myLogger.logging_info('flask','video_stats')
-            video_stats = TiktokViewStats.livecounts.video_info(video_id)
-            print("4", video_stats)
-            print("ini video", video_stats)
-            myLogger.logging_info('flask',video_stats)
-
-            # myLogger.logging_info('flask','video_data')
-            video_data = TiktokViewStats.livecounts.video_data(video_id)
-            print("ini ", video_data)
-            myLogger.logging_info('flask',video_data)
-
-            user_stats = {}
-            if len(video_data) > 0:
-                user_id = video_data['author']['userId']
-                if user_id is not None and user_id != '' : 
-                    user_stats = TiktokViewStats.livecounts.user_stats(user_id)
-                    print("ini user stats", user_stats)
             
-            if len(video_stats) > 0 and len(user_stats)>0:
+            userInfo = scrapTiktok.getUserInfo(username)
+            userStats = scrapTiktok.getUserStats(username)
+            videoStats = scrapTiktok.getVideoStats(video_id,username)
+            print('userInfo:',userInfo)
+            print('userStats:',userStats)
+            print('videoStats:',videoStats)
+            if (bool(userInfo)) and (bool(userStats)) and (bool(videoStats)):
                 resp['status'] = True
                 resp['message'] = 'success'
-                resp['data'] = {'video':video_stats,'user':user_stats,'author':video_data['author']}
-                print("ini resp", resp)
-            else :
+                resp['data'] = {'video':videoStats,'user':userStats,'author':userInfo}
+            else:
                 resp['message'] = 'empty data'
                 resp['status'] = '202'
+
+            # video_stats = TiktokViewStats.livecounts.video_info(video_id)
+            # print("4", video_stats)
+            # print("ini video", video_stats)
+            # myLogger.logging_info('flask',video_stats)
+
+            # # myLogger.logging_info('flask','video_data')
+            # video_data = TiktokViewStats.livecounts.video_data(video_id)
+            # print("ini ", video_data)
+            # myLogger.logging_info('flask',video_data)
+
+            # user_stats = {}
+            # if len(video_data) > 0:
+            #     user_id = video_data['author']['userId']
+            #     if user_id is not None and user_id != '' : 
+            #         user_stats = TiktokViewStats.livecounts.user_stats(user_id)
+            #         print("ini user stats", user_stats)
+            
+            # if len(video_stats) > 0 and len(user_stats)>0:
+            #     resp['status'] = True
+            #     resp['message'] = 'success'
+            #     resp['data'] = {'video':video_stats,'user':user_stats,'author':video_data['author']}
+            #     print("ini resp", resp)
+            # else :
+            #     resp['message'] = 'empty data'
+            #     resp['status'] = '202'
         except Exception as e:
             print("ex",e)
             myLogger.logging_error('flask','got exc when get video stats:',e)

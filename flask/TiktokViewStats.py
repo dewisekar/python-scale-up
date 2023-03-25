@@ -8,8 +8,6 @@ import requests
 from itertools import cycle
 import traceback
 import requests
-from lxml import etree
-from io import StringIO
 import json
 from datetime import datetime
 
@@ -140,49 +138,8 @@ def get_proxies():
             proxies.add(proxy)
     return proxies
 
-def getListVideoFromTiktokUser(username):
-    listVideo = []
-    if username[0:1] != '@':
-        username = '@' + username
-    try :
-        parser = etree.HTMLParser()
-        headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
-        }
-        page = requests.get(f'https://www.tiktok.com/{username}',headers=headers)
-        html = page.content.decode("utf-8")
-        tree = etree.parse(StringIO(html), parser=parser)
-        refs = tree.xpath("//a")
-        links = [link.get('href', '') for link in refs]
-        listVideo = [l.split("/")[5] for l in links if '/video/' in l][:10]
-    except Exception as e:
-        print('got exception getListVideoFromTiktokUser, e:',e)
-    return listVideo
 
-def getVideoDataAndStats(videoId,username):
-    resp = {}
-    if username[0:1] != '@':
-        username = '@' + username
-    try:
-        parser = etree.HTMLParser()
-        headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
-        }
-        page = requests.get(f'https://www.tiktok.com/{username}/video/{videoId}',headers=headers)
-        html = page.content.decode("utf-8")
-        tree = etree.parse(StringIO(html), parser=parser)
-        id_path = "SIGI_STATE"
-        results = tree.xpath("//script[@id = '%s']" % id_path)
-        videoData = json.loads(results[0].text)
-        unixTimeStamps = videoData['ItemModule'][videoId]['createTime']
-        ts = int(unixTimeStamps)
-        createTime = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        data = {'cover:': videoData['ItemModule'][videoId]['video']['cover'],"title": videoData['SEOState']['metaParams']['title'],"createTime":createTime}
-        stats = videoData['ItemModule'][videoId]['stats']
-        resp = {'id':videoId,'data':data,'stats':stats}
-    except Exception as e:
-        print('got exception getCreatedTime, e:',e)
-    return resp
+
 
 if __name__ == '__main__':
     try:
