@@ -54,7 +54,6 @@ class livecounts:
     @staticmethod
     def user_search(username: (int or str)) -> dict:
         timestamp = int(time() * 1000)
-        print("ini users", username)
         
         headers = {
             # **livecounts.__signature(timestamp),
@@ -68,7 +67,7 @@ class livecounts:
         #req = get(f'https://tiktok.livecounts.io/video/stats/{video_id}', headers=headers, proxies=proxies)
         #print("username:",username)
         req = get(f'https://tiktok.livecounts.io/user/search/{username}', headers=headers)
-        # print("req.json():",req.json())
+        print("req.json():",req.json())
         return req.json()
 
     @staticmethod
