@@ -45,10 +45,12 @@ class livecounts:
             'origin'    : 'https://livecounts.io',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
         }
+        print("5")
         #proxies = livecounts.__getProxies()
         #print(proxies)
         #req = get(f'https://tiktok.livecounts.io/video/stats/{video_id}', headers=headers, proxies=proxies)
         req = get(f'https://tiktok.livecounts.io/video/stats/{video_id}', headers=headers)
+        print("6", req)
         return req.json()
 
     @staticmethod
