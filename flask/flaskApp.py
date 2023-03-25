@@ -145,7 +145,6 @@ def getCPM():
             resp['avgCpm'] = cost*totalCount / totalViews * 1000
         resp['username'] = username
         resp['totalViews'] = totalViews
-        # resp['followers'] = userStats['followers']
         resp['status'] = True
             
     response = jsonify(resp)
@@ -202,9 +201,12 @@ def getTiktokVideoWithUserStats():
             url  = TiktokViewStats.livecounts.getIdFromLongUrl(url)
         print("url baru", url)
         regexResult = url.split("/")
+        print("1", regexResult)
         username = regexResult[3]
+        print("2", username)
         uncutId = regexResult[5].split("?")
         video_id = uncutId[0]
+        print("3", video_id)
         # username, video_id = re.findall(r'(@[a-zA-z0-9]*)\/.*\/([\d]*)?',url)[0]
     except Exception as e:
         myLogger.logging_error('flask','got exc when extract video id:',e)
@@ -215,6 +217,7 @@ def getTiktokVideoWithUserStats():
         try:
             myLogger.logging_info('flask','video_stats')
             video_stats = TiktokViewStats.livecounts.video_info(video_id)
+            print("4", video_stats)
             print("ini video", video_stats)
             myLogger.logging_info('flask',video_stats)
 
