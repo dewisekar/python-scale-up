@@ -74,7 +74,7 @@ def getTiktokVideoStats():
         try:
             #stats = TiktokViewStats.livecounts.video_info(video_id)
             stats = scrapTiktok.getVideoStats(video_id,username)
-            print("ini stats", stats)
+            # print("ini stats", stats)
             if stats is not None:
                 resp['status'] = True
                 resp['message'] = 'success'
@@ -172,6 +172,36 @@ def getUserInfo():
                 resp['message'] = 'success'
                 resp['status'] = True
                 resp['data'] = userInfo
+            else :
+                resp['message'] = 'empty data'
+                resp['status'] = '202'
+        except Exception as e:
+            myLogger.logging_error('flask','got exc when get user info:',e)
+    
+    response = jsonify(resp)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Content-Type', 'application/json')
+    # response.headers.add('Access-Control-Allow-Headers', 'X-Requested-With')
+    return response
+
+@app.route('/getUserStats/', methods=['GET','POST'])
+# @auth.login_required
+def getUserStats():
+    resp = {'status':False}
+    body = request.json
+    myLogger.logging_info('flask','/getUserInfo/','body:',body)
+    username = body['username']
+
+    if username == '':
+        resp['message'] = 'username cannot be empty'
+        resp['status'] = '201'
+    else:
+        try:
+            userStats = scrapTiktok.getUserStats(username)
+            if bool(userStats):
+                resp['message'] = 'success'
+                resp['status'] = True
+                resp['data'] = userStats
             else :
                 resp['message'] = 'empty data'
                 resp['status'] = '202'
